@@ -1,7 +1,7 @@
 import { connect } from "react-redux";
 import { Grid, Card } from '@mui/material';
 import { CardContent, CardMedia, Typography ,CardActions,Button} from "@mui/material";
-
+import { addTo } from '../../store/cart';
 
 
 const Product = props => {
@@ -27,7 +27,7 @@ const Product = props => {
                                 </CardContent>
 
                                 <CardActions>
-                                    <Button size="small">ADD TO CART</Button>
+                                <Button size="small" onClick={() =>props.addTo(prod) }>ADD TO CART</Button>
                                     <Button size="small">VIEW DETAILS</Button>
                                 </CardActions>
                             </Card>
@@ -41,9 +41,13 @@ const Product = props => {
 
 
 }
+
 const mapStateToProps = state => ({
     products: state.store.products,
     activeCategory: state.store.activeCategory
 });
 
-export default connect(mapStateToProps)(Product);
+const mapDispatchToProps = {addTo};
+
+export default connect(mapStateToProps,mapDispatchToProps)(Product);
+
