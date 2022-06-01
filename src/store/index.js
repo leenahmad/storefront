@@ -1,8 +1,11 @@
 import { combineReducers,createStore } from 'redux';
 import { composeWithDevTools } from 'redux-devtools-extension';
 import productReduser from './products';
+import cartRed from './cart';
 
-let reducers = combineReducers({store:productReduser});
+let reducers = combineReducers({
+    store:productReduser ,  
+    cart:cartRed});
 
 const store = () => {
     return createStore(reducers,composeWithDevTools());

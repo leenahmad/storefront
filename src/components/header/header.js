@@ -1,4 +1,5 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
@@ -8,13 +9,14 @@ import Typography from '@mui/material/Typography';
 
 
 
-export default function Header() {
+function Header(props) {
     return (
         <>
             <AppBar position="static" >
                 <Toolbar variant="dense" >
                     <Typography  style={{marginRight:'75%'}} variant="h5" color="inherit" component="div">
-                        OUR STORE
+                      
+                        CART({props.Cart.length})
                     </Typography>
 
                   
@@ -32,3 +34,9 @@ export default function Header() {
         </>
     )
 }
+
+const mapStateToProps = state => ({
+    Cart : state.cart
+});
+
+export default connect(mapStateToProps)(Header);
