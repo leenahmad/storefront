@@ -1,74 +1,98 @@
-const initialState = {
-    categories: [
-        {
-            normalizedName: 'MOVIES',
-            displayname: 'MOVIES',
-            description: 'This category will shows the MOVIES section.',
-        },
-        {
-            normalizedName:'LABTOPS' ,
-            displayname: 'LABTOPS',
-            description: 'This category will shows the LABTOPS section.',
-        },
-        {
-            normalizedName:'SERIES' ,
-            displayname: 'SERIES',
-            description: 'This category will shows the SERIES section.',
-        }
-        
-    ],
+import axios from 'axios';
 
-    products:[
-        {
-            category: 'MOVIES',
-            name: 'Blood and Bone',
-            description:'Blood and Bone is an American martial arts movie' ,
-            price:'60$' ,
-            inventoryCount:'4' ,
-            image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQmEFgpNcJv8uZ-PmW0CUnc0WBTmuK83YI5Lw&usqp=CAU'
+let initialState = {
+  products: []
+}
+let products;
 
-            
+export default function ProductsReducer(state = initialState, action) {
+  let { type, payload } = action;
 
-        },
-        
-        {
-            category: 'LABTOPS',
-            name: 'LENOVO',
-            description:'LAPTOP.' ,
-            price:'320$' ,
-            inventoryCount:'10' ,
-            image: 'https://gts.jo/image/cache/catalog/products/laptops/LENOVO/2021/e15-1-550x400.jpg'
-        },
-        {
-            category: 'SERIES',
-            name: 'Breaking Bad',
-            description:'American crime drama series' ,
-            price:'20$' ,
-            inventoryCount:'15' ,
-            image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvbiF-EkXhEnepjiO-2bNnCQKxjAH3yA6Pkg&usqp=CAU'
-        }
-    ],
+  switch(type) {
 
-    activeCategory: '',
+    case "LOAD_PRODUCTS":
+      return { products: payload.results };
+
+    case "ADD_TO_CART":
+
+      products = state.products.map(product => {
+          if(product.name === payload.name) {
+            return { _id: product._id, name: product.name, category: product.category, inStock: product.inStock - 1, price: product.price };
+          }
+          return { _id: product._id, name: product.name, category: product.category, inStock: product.inStock, price: product.price };
+        });
+
+      return { products: products };
+
+    case "REMOVE_FROM_CART":
+
+      products = state.products.map(product => {
+          if(product.name === payload.name) {
+            return { _id: product._id, name: product.name, category: product.category, inStock: product.inStock + payload.inCart, price: product.price };
+          }
+          return { _id: product._id, name: product.name, category: product.category, inStock: product.inStock, price: product.price };
+        });
+
+      return { products: products };
+
+    case "RETURN_TO_STOCK":
+
+      products = state.products.map(product => {
+          if(product.name === payload.name) {
+            return { _id: product._id, name: product.name, category: product.category, inStock: payload.inStock, price: product.price };
+          }
+          return { _id: product._id, name: product.name, category: product.category, inStock: product.inStock, price: product.price };
+        });
+
+        return { products: products };
+
+    case "DEPLETE_STOCK":
+
+        products = state.products.map(product => {
+          if(product.name === payload.name) {
+            return { _id: product._id, name: product.name, category: product.category, inStock: payload.inStock, price: product.price };
+          }
+          return { _id: product._id, name: product.name, category: product.category, inStock: product.inStock, price: product.price };
+        });
+
+      return { products: products };
+
+    default:
+      return state;
+  }
 }
 
-
- function productReduser(state = initialState, action){
-
-    const {type, payload } = action;
-    switch(type){
-        case 'ACTIVE':
-            return{...state,activeCategory:payload }
-            default:
-                return state;
-    }
+export const loadProducts = () => (dispatch, getState) => {
+  return axios.get('https://api-js401.herokuapp.com/api/v1/products')
+    .then(response => {
+      dispatch({
+        type: "LOAD_PRODUCTS",
+        payload: response.data
+      });
+    });
 }
 
-export const active = (category) => {
-    return{
-        type: 'ACTIVE',
-        payload:category
-    }
+export const returnToStock = (product) => (dispatch, getState) => {
+  product.inStock += product.inCart;
+  delete product.inCart;
+  return axios.put(`http://localhost:3000/products/${product._id}`, product)
+    .then(response => {
+      // console.log('put reshelf', response);
+      dispatch({
+        type: "RETURN_TO_STOCK",
+        payload: response.data
+      });
+    });
 }
 
-export default productReduser;
+export const depleteStock = (product) => (dispatch, getState) => {
+  product.inStock-= 1;
+  return axios.put(`http://localhost:3000/products/${product._id}`, product)
+    .then(response => {
+      // console.log('put deplete', response);
+      dispatch({
+        type: "DEPLETE_STOCK",
+        payload: response.data
+      });
+    });
+}

@@ -1,29 +1,74 @@
-import { connect } from "react-redux";
-import { remove } from '../../store/cart'
-import {Card,Typography,CardActions} from '@mui/material'
-import { Button } from "@mui/material";
+import React from 'react';
+import { connect } from 'react-redux';
+import { removeFromCart } from '../../store/cart.js';
+import { returnToStock } from '../../store/products.js';
+import { If } from '../if/if';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
+import ListItemText from '@material-ui/core/ListItemText';
+import IconButton from '@material-ui/core/IconButton';
+import { makeStyles } from '@material-ui/core/styles';
+// import Typography from '@material-ui/core/Typography';
+import DeleteIcon from '@material-ui/icons/Delete';
+import Paper from '@material-ui/core/Paper';
 
-const Cart = props => {
-return(
-   
-    <Card elevation={9}>
-{props.Cart.map(item => {
-    return(
-       <CardActions>
-                <Typography>{item.name}</Typography>
-            
-            <Button onClick={() => props.remove(item)} style={{color:'red'}}> x </Button>
-            </CardActions>
-    )
-})}
-    </Card>
-)
+const useStyles = makeStyles({
+  cart: {
+    position: 'absolute',
+    maxHeight: '30vh',
+    width: '22vw',
+    overflow: 'auto',
+  }
+});
+
+const CartDisplay = (props) => {
+  const [dense] = React.useState(false);
+  const classes = useStyles();
+  return (
+
+    <div>
+      <Paper className={classes.cart} evelation={3}>
+        <List dense={dense}>
+          <ListItem>
+            <ListItemText
+            primary="Shopping Cart"
+            />
+          </ListItem>
+          <If condition={props.cart.length > 0}>
+            {props.cart.map(item => {
+              return (
+                <ListItem key={item.name}>
+                  <ListItemText
+                  primary={item.name}
+                  secondary={item.inCart}
+                  />
+                  <ListItemSecondaryAction>
+                    <IconButton onClick={() => {props.removeFromCart(item);
+                    props.returnToStock(item);
+                    }}  color="secondary" edge="end" aria-label="delete">
+                      <DeleteIcon  />
+                    </IconButton>
+                  </ListItemSecondaryAction>
+                </ListItem>
+              )
+            })}
+          </If>
+        </List>
+      </Paper>
+    </div>
+  )
 }
 
-const mapStateToProps = state => ({
-    Cart:state.cart
-}) ;
+const mapStateToProps = (state) => {
+  return {
+    cart: state.cart.cart,
+  }
+}
 
-const mapDispatchToProps = {remove};
+const mapDispatchToProps = {
+  removeFromCart,
+  returnToStock,
+}
 
-export default connect(mapStateToProps,mapDispatchToProps)(Cart);
+export default connect(mapStateToProps, mapDispatchToProps)(CartDisplay);
