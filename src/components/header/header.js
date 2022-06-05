@@ -1,42 +1,46 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-// import IconButton from '@mui/material/IconButton';
+import { selectCategory } from '../../store/categories.js';
+import { makeStyles } from '@material-ui/core/styles';
+import AppBar from '@material-ui/core/AppBar';
+import Toolbar from '@material-ui/core/Toolbar';
+import Typography from '@material-ui/core/Typography';
+import Button from '@material-ui/core/Button';
 
 
+const useStyles = makeStyles((theme) => ({
+  root: {
+    flexGrow: 1,
+  },
+  title: {
+    flexGrow: 1,
+  },
+}));
 
-
-
-function Header(props) {
+const Header = (props) => {
+  const classes = useStyles();
     return (
-        <>
-            <AppBar position="static" >
-                <Toolbar variant="dense" >
-                    <Typography  style={{marginRight:'75%'}} variant="h5" color="inherit" component="div">
-                      
-                        CART({props.Cart.length})
-                    </Typography>
-
-                  
-
-               <div style={{marginRight:'100px'}}>
-               <Typography   variant="h5" color="inherit" component="div">
-                        cart
-                    </Typography>
-                    
-                    </div>
-                </Toolbar>
-            </AppBar>
-
-           
-        </>
+      <AppBar position="static" color="default">
+        <Toolbar elevation={3}>
+          <Typography variant="h6" className={classes.title}>
+            "our store"
+          </Typography>
+          <Button color="inherit">Cart ({props.cartCount})</Button>
+        </Toolbar>
+      </AppBar>
     )
 }
 
-const mapStateToProps = state => ({
-    Cart : state.cart
-});
+const mapStateToProps = (state) => {
+  return {
+    cart: state.cart.cart,
+    cartCount: state.cart.cartCount,
+  }
+}
 
-export default connect(mapStateToProps)(Header);
+const mapDispatchToProps = {
+  selectCategory,
+}
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(Header);
